@@ -91,12 +91,12 @@ pub async fn update_swaps_history(
                     );
                 }
                 Err(e) => {
-                    eprintln!("Failed to deserialize response: {:?}", e);
+                    println!("Failed to deserialize response: {:?}", e);
                     return Err(e.into());
                 }
             },
             Err(e) => {
-                eprintln!("Failed to fetch data: {:?}", e);
+                println!("Failed to fetch data: {:?}", e);
                 return Err(e.into());
             }
         }

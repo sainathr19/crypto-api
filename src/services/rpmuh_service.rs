@@ -134,12 +134,12 @@ pub async fn update_rpmuh_data(
                 Ok(())
             }
             Err(e) => {
-                eprintln!("Failed to deserialize response: {:?}", e);
+                println!("Failed to deserialize response: {:?}", e);
                 Err(e.into())
             }
         },
         Err(e) => {
-            eprintln!("Failed to fetch data: {:?}", e);
+            println!("Failed to fetch data: {:?}", e);
             Err(e.into())
         }
     }

@@ -17,7 +17,7 @@ pub async fn start_scheduler(mongo_db: MongoDB) -> Result<(), Box<dyn Error>> {
         interval.tick().await;
         println!("Fetching Latest Data");
         if let Err(e) = pull_latest_data(mongo_db.clone()).await {
-            eprintln!("Error pulling latest data: {}", e);
+            println!("Error pulling latest data: {}", e);
         }
     }
 }
@@ -27,19 +27,19 @@ async fn pull_latest_data(mongo_db: MongoDB) -> Result<(), Box<dyn Error>> {
     let from = (Utc::now() - Duration::hours(1)).timestamp() as f64;
 
     if let Err(e) = update_depths_data(mongo_db.clone(), String::from("BTC.BTC"), from, to).await {
-        eprintln!("Error fetching depth history: {:?}", e);
+        println!("Error fetching depth history: {:?}", e);
     }
 
     if let Err(e) = update_earnings_history(mongo_db.clone(), from, to).await {
-        eprintln!("Error fetching earnings history: {:?}", e);
+        println!("Error fetching earnings history: {:?}", e);
     }
 
     if let Err(e) = update_rpmuh_data(mongo_db.clone(), from, to).await {
-        eprintln!("Error fetching members history: {:?}", e);
+        println!("Error fetching members history: {:?}", e);
     }
 
     if let Err(e) = update_swaps_history(mongo_db.clone(), from, to).await {
-        eprintln!("Error fetching swap history: {:?}", e);
+        println!("Error fetching swap history: {:?}", e);
     }
 
     Ok(())
