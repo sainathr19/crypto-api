@@ -1,0 +1,16 @@
+[package]
+name = "crypto-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv = "0.15"
+actix-web = "4.9.0"
+cargo-watch = "8.5.3"
+serde = "1.0.210"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11.6", features = ["blocking", "json"] }
+mongodb = "3.1.0"
+chrono = "0.4"
+futures-util = "0.3.31"
+tokio-cron-scheduler = "0.13.0"
