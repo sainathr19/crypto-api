@@ -138,14 +138,10 @@ pub async fn update_depths_data(
         pool_name, count, from, to
     );
     println!("Fetching URL: {}", &url);
-
-    // Fetch data from the API
     match reqwest::get(&url).await {
         Ok(response) => match response.json::<DepthsHistoryResponse>().await {
             Ok(resp) => {
                 let intervals: Vec<DepthsHistoryInterval> = resp.intervals;
-
-                // Insert the intervals data into MongoDB
                 let result = mongo_db
                     .depths_history
                     .insert_many(intervals)
