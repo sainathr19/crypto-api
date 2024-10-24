@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SwapsHistoryInterval {
+pub struct SwapHistoryInterval {
     pub average_slip: f64,
     pub end_time: f64,
     pub from_trade_average_slip: f64,
@@ -51,7 +51,7 @@ pub struct SwapsHistoryInterval {
     pub total_volume_usd: f64,
 }
 
-impl SwapsHistoryInterval {
+impl SwapHistoryInterval {
     pub fn field_names() -> Vec<&'static str> {
         vec![
             "averageSlip",
@@ -102,7 +102,7 @@ impl SwapsHistoryInterval {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SwapsHistoryMeta {
+pub struct SwapHistoryMeta {
     pub average_slip: f64,
     pub end_time: f64,
     pub from_trade_average_slip: f64,
@@ -151,7 +151,7 @@ pub struct SwapsHistoryMeta {
     pub total_volume_usd: f64,
 }
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SwapsHistoryResponse {
-    pub intervals: Vec<SwapsHistoryInterval>,
-    pub meta: SwapsHistoryMeta,
+pub struct SwapHistoryResponse {
+    pub intervals: Vec<SwapHistoryInterval>,
+    pub meta: SwapHistoryMeta,
 }

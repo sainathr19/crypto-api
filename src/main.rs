@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::depths_history::init)
             .configure(routes::earnings_history::init)
             .configure(routes::swaps_history::init)
-            .configure(routes::members_history::init)
+            .configure(routes::rpmuh_history::init)
     })
     .bind(("0.0.0.0", 3000))?
     .run()

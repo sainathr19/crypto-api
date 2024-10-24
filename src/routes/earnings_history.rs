@@ -1,13 +1,15 @@
 use crate::helpers::query_parser::QueryParser;
-use crate::models::earnings_history::{EarningsHistoryInterval, EarningsHistoryParams};
-use crate::routes::types::EarningsHistoryResponse;
-use crate::{db::connection::MongoDB, services::earnings_service::get_earnings_history_data};
+use crate::models::earning_history_model::EarningHistoryInterval;
+use crate::routes::types::{EarningHistoryParams, EarningHistoryResponse};
+use crate::{db::connection::MongoDB, services::earnings_service::fetch_earnings_history};
 use actix_web::{get, web, HttpResponse, Responder};
 
+use super::depths_history::handle_depths_history;
+
 #[get("/earnings")]
-pub async fn get_earnings_data(
+pub async fn handle_earnings_history(
     mongo_db: web::Data<MongoDB>,
-    query: web::Query<EarningsHistoryParams>,
+    query: web::Query<EarningHistoryParams>,
 ) -> impl Responder {
     let pagination_params = match QueryParser::new(&query.common) {
         Ok(params) => params,
@@ -18,7 +20,7 @@ pub async fn get_earnings_data(
         .clone()
         .unwrap_or_else(|| String::from("startTime"));
 
-    if !EarningsHistoryInterval::has_field(sort_by.clone()) {
+    if !EarningHistoryInterval::has_field(sort_by.clone()) {
         return HttpResponse::BadRequest().body("Invalid sort_by parameter.");
     }
     let order = match query.order.as_deref() {
@@ -26,16 +28,15 @@ pub async fn get_earnings_data(
         _ => -1,
     };
     let interval_str = query.interval.as_deref().unwrap_or("hour");
-    match get_earnings_history_data(&mongo_db, pagination_params, &interval_str, sort_by, order)
-        .await
+    match fetch_earnings_history(&mongo_db, pagination_params, &interval_str, sort_by, order).await
     {
         Ok((meta, intervals)) => {
-            HttpResponse::Ok().json(EarningsHistoryResponse { meta, intervals })
+            HttpResponse::Ok().json(EarningHistoryResponse { meta, intervals })
         }
         Err(error_message) => HttpResponse::InternalServerError().body(error_message),
     }
 }
 
 pub fn init(config: &mut web::ServiceConfig) {
-    config.service(get_earnings_data);
+    config.service(handle_depths_history);
 }

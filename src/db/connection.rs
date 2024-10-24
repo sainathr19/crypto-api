@@ -3,16 +3,16 @@ use mongodb::{error::Error, Client, Collection};
 use std::env;
 
 use crate::models::{
-    depths_history::DepthsHistoryInterval, earnings_history::EarningsHistoryInterval,
-    rptmuh_model::MembersAndUnitsInterval, swaps_history::SwapsHistoryInterval,
+    depth_history_model::DepthHistoryInterval, earning_history_model::EarningHistoryInterval,
+    rptmuh_model::RpmuHistoryInterval, swap_history_model::SwapHistoryInterval,
 };
 
 #[derive(Clone)]
 pub struct MongoDB {
-    pub depths_history: Collection<DepthsHistoryInterval>,
-    pub members_history: Collection<MembersAndUnitsInterval>,
-    pub swaps_history: Collection<SwapsHistoryInterval>,
-    pub earnings_history: Collection<EarningsHistoryInterval>,
+    pub depths_history: Collection<DepthHistoryInterval>,
+    pub members_history: Collection<RpmuHistoryInterval>,
+    pub swaps_history: Collection<SwapHistoryInterval>,
+    pub earnings_history: Collection<EarningHistoryInterval>,
 }
 impl MongoDB {
     pub async fn init() -> Result<Self, Error> {
@@ -22,10 +22,10 @@ impl MongoDB {
             .await
             .expect("Unable to connect with MongoDB");
         let db = client.database("masterdb");
-        let depths_history: Collection<DepthsHistoryInterval> = db.collection("depths_history");
-        let members_history: Collection<MembersAndUnitsInterval> = db.collection("members_history");
-        let swaps_history: Collection<SwapsHistoryInterval> = db.collection("swaps_history");
-        let earnings_history: Collection<EarningsHistoryInterval> =
+        let depths_history: Collection<DepthHistoryInterval> = db.collection("depths_history");
+        let members_history: Collection<RpmuHistoryInterval> = db.collection("members_history");
+        let swaps_history: Collection<SwapHistoryInterval> = db.collection("swaps_history");
+        let earnings_history: Collection<EarningHistoryInterval> =
             db.collection("earnings_history");
         Ok(MongoDB {
             depths_history,

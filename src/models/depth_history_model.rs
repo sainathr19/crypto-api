@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DepthsHistoryInterval {
+pub struct DepthHistoryInterval {
     pub asset_depth: f64,
     pub asset_price: f64,
     #[serde(rename = "assetPriceUSD")]
@@ -17,7 +17,7 @@ pub struct DepthsHistoryInterval {
     pub synth_units: f64,
     pub units: f64,
 }
-impl DepthsHistoryInterval {
+impl DepthHistoryInterval {
     pub fn get_feilds() -> Vec<&'static str> {
         vec![
             "assetDepth",
@@ -41,7 +41,7 @@ impl DepthsHistoryInterval {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DepthsHistoryMeta {
+pub struct DepthHistoryMeta {
     pub end_asset_depth: f64,
     pub end_lp_units: f64,
     pub end_member_count: f64,
@@ -60,7 +60,7 @@ pub struct DepthsHistoryMeta {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DepthsHistoryResponse {
-    pub intervals: Vec<DepthsHistoryInterval>,
-    pub meta: DepthsHistoryMeta,
+pub struct DepthHistoryResponse {
+    pub intervals: Vec<DepthHistoryInterval>,
+    pub meta: DepthHistoryMeta,
 }

@@ -1,7 +1,7 @@
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
-use crate::models::swaps_history::{SwapsHistoryInterval, SwapsHistoryResponse};
-use crate::routes::types::SwapsHistoryMeta;
+use crate::models::swap_history_model::{SwapHistoryInterval, SwapHistoryResponse};
+use crate::routes::types::SwapHistoryMeta;
 
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};
@@ -9,18 +9,17 @@ use reqwest;
 use std::time::Duration;
 use tokio::time::sleep;
 
-pub async fn fetch_swaps_data(
+pub async fn fetch_swaps_history(
     mongo_db: &MongoDB,
     pagination_params: QueryParser,
     sort_by: String,
     order: i32,
-) -> Result<(SwapsHistoryMeta, Vec<SwapsHistoryInterval>), String> {
+) -> Result<(SwapHistoryMeta, Vec<SwapHistoryInterval>), String> {
     let skip = pagination_params.skip();
     let filter = pagination_params.date_filter();
 
     let mut sort_doc = doc! {};
     sort_doc.insert(sort_by, order);
-
     let pipeline = vec![
         doc! { "$match": filter },
         doc! { "$sort": sort_doc },
@@ -30,7 +29,7 @@ pub async fn fetch_swaps_data(
 
     match mongo_db.swaps_history.aggregate(pipeline).await {
         Ok(cursor) => {
-            let results: Vec<SwapsHistoryInterval> = cursor
+            let results: Vec<SwapHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
                 .await
                 .map_err(|e| e.to_string())?
@@ -38,7 +37,7 @@ pub async fn fetch_swaps_data(
                 .map(|doc| mongodb::bson::from_document(doc).unwrap())
                 .collect();
             let has_next_page = results.len() as i64 == pagination_params.count;
-            let meta = SwapsHistoryMeta {
+            let meta = SwapHistoryMeta {
                 current_page: pagination_params.page,
                 count: results.len() as i64,
                 has_next_page,
@@ -70,7 +69,7 @@ pub async fn update_swaps_history(
         println!("Fetching URL: {}", &url);
 
         match reqwest::get(&url).await {
-            Ok(response) => match response.json::<SwapsHistoryResponse>().await {
+            Ok(response) => match response.json::<SwapHistoryResponse>().await {
                 Ok(resp) => {
                     start_time = resp.meta.end_time;
                     if start_time >= to {
@@ -78,7 +77,7 @@ pub async fn update_swaps_history(
                         break;
                     }
 
-                    let intervals: Vec<SwapsHistoryInterval> = resp.intervals;
+                    let intervals: Vec<SwapHistoryInterval> = resp.intervals;
                     let result = mongo_db
                         .swaps_history
                         .insert_many(intervals)

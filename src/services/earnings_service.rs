@@ -5,16 +5,16 @@ use mongodb::bson::{doc, Document};
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::helpers::time_intervals::interval_to_seconds;
-use crate::models::earnings_history::{EarningsHistoryInterval, EarningsHistoryResponse};
-use crate::routes::types::EarningsHistoryMeta;
+use crate::models::earning_history_model::{EarningHistoryInterval, EarningHistoryResponse};
+use crate::routes::types::EarningHistoryFlattenMeta;
 
-pub async fn get_earnings_history_data(
+pub async fn fetch_earnings_history(
     mongo_db: &web::Data<MongoDB>,
     pagination_params: QueryParser,
     interval_str: &str,
     sort_by: String,
     order: i32,
-) -> Result<(EarningsHistoryMeta, Vec<EarningsHistoryInterval>), String> {
+) -> Result<(EarningHistoryFlattenMeta, Vec<EarningHistoryInterval>), String> {
     let interval_seconds = interval_to_seconds(interval_str);
     let skip = pagination_params.skip();
     let filter = pagination_params.date_filter();
@@ -57,7 +57,7 @@ pub async fn get_earnings_history_data(
 
     match mongo_db.earnings_history.aggregate(pipeline).await {
         Ok(cursor) => {
-            let results: Vec<EarningsHistoryInterval> = cursor
+            let results: Vec<EarningHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
                 .await
                 .unwrap_or_else(|_| Vec::new())
@@ -69,10 +69,10 @@ pub async fn get_earnings_history_data(
                 return Err("No data found for the given parameters.".to_string());
             }
 
-            let meta = EarningsHistoryMeta {
+            let meta = EarningHistoryFlattenMeta {
                 count: results.len() as i64,
                 page: pagination_params.page,
-                hasNextPage: results.len() as i64 == pagination_params.count,
+                has_next_page: results.len() as i64 == pagination_params.count,
             };
 
             Ok((meta, results))
@@ -81,7 +81,7 @@ pub async fn get_earnings_history_data(
     }
 }
 
-pub async fn update_earnings_data(
+pub async fn update_earnings_history(
     mongo_db: MongoDB,
     from: f64,
     to: f64,
@@ -97,9 +97,9 @@ pub async fn update_earnings_data(
     );
     println!("Fetching URL: {}", &url);
     match reqwest::get(&url).await {
-        Ok(response) => match response.json::<EarningsHistoryResponse>().await {
+        Ok(response) => match response.json::<EarningHistoryResponse>().await {
             Ok(resp) => {
-                let intervals: Vec<EarningsHistoryInterval> = resp.intervals;
+                let intervals: Vec<EarningHistoryInterval> = resp.intervals;
                 let result = mongo_db
                     .earnings_history
                     .insert_many(intervals)

@@ -1,13 +1,13 @@
 use crate::helpers::query_parser::QueryParser;
-use crate::routes::types::{DepthsHistoryParams, Response};
-use crate::services::depths_service::get_depths_history_data;
-use crate::{db::connection::MongoDB, models::depths_history::DepthsHistoryInterval};
+use crate::routes::types::{DepthHistoryParams, DepthHistoryResponse};
+use crate::services::depths_service::fetch_depths_history;
+use crate::{db::connection::MongoDB, models::depth_history_model::DepthHistoryInterval};
 use actix_web::{get, web, HttpResponse, Responder};
 
 #[get("/depths")]
-pub async fn fetch_depths_history(
+pub async fn handle_depths_history(
     mongo_db: web::Data<MongoDB>,
-    query: web::Query<DepthsHistoryParams>,
+    query: web::Query<DepthHistoryParams>,
 ) -> impl Responder {
     let query_params = match QueryParser::new(&query.common) {
         Ok(params) => params,
@@ -20,7 +20,7 @@ pub async fn fetch_depths_history(
         .clone()
         .unwrap_or_else(|| String::from("startTime"));
 
-    if !DepthsHistoryInterval::has_field(sort_by.clone()) {
+    if !DepthHistoryInterval::has_field(sort_by.clone()) {
         return HttpResponse::BadRequest().body("Invalid sort_by parameter.");
     }
 
@@ -33,7 +33,7 @@ pub async fn fetch_depths_history(
     let min_depth: Option<f64> = query.min_depth;
     let liquidity_gt: Option<f64> = query.liquidity_gt;
 
-    match get_depths_history_data(
+    match fetch_depths_history(
         &mongo_db,
         query_params,
         interval_str,
@@ -45,11 +45,11 @@ pub async fn fetch_depths_history(
     )
     .await
     {
-        Ok((meta, intervals)) => HttpResponse::Ok().json(Response { meta, intervals }),
+        Ok((meta, intervals)) => HttpResponse::Ok().json(DepthHistoryResponse { meta, intervals }),
         Err(err) => HttpResponse::InternalServerError().body(err),
     }
 }
 
 pub fn init(config: &mut web::ServiceConfig) {
-    config.service(fetch_depths_history);
+    config.service(handle_depths_history);
 }

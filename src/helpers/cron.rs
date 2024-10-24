@@ -5,8 +5,8 @@ use chrono::{Duration, Utc};
 use crate::{
     db::connection::MongoDB,
     services::{
-        depths_service::update_depths_data, earnings_service::update_earnings_data,
-        rpmuh_service::update_runepool_data, swaps_service::update_swaps_history,
+        depths_service::update_depths_data, earnings_service::update_earnings_history,
+        rpmuh_service::update_rpmuh_data, swaps_service::update_swaps_history,
     },
 };
 
@@ -30,11 +30,11 @@ async fn pull_latest_data(mongo_db: MongoDB) -> Result<(), Box<dyn Error>> {
         eprintln!("Error fetching depth history: {:?}", e);
     }
 
-    if let Err(e) = update_earnings_data(mongo_db.clone(), from, to).await {
+    if let Err(e) = update_earnings_history(mongo_db.clone(), from, to).await {
         eprintln!("Error fetching earnings history: {:?}", e);
     }
 
-    if let Err(e) = update_runepool_data(mongo_db.clone(), from, to).await {
+    if let Err(e) = update_rpmuh_data(mongo_db.clone(), from, to).await {
         eprintln!("Error fetching members history: {:?}", e);
     }
 

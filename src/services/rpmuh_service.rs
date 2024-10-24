@@ -4,16 +4,16 @@ use mongodb::bson::{doc, Document};
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::helpers::time_intervals::interval_to_seconds;
-use crate::models::rptmuh_model::{MembersAndUnitsInterval, MembersAndUnitsResponse};
-use crate::routes::types::MembersAndUnitsMeta;
+use crate::models::rptmuh_model::{RpmuHistoryInterval, RpmuHistoryResponse};
+use crate::routes::types::RpmuHistoryMeta;
 
-pub async fn fetch_member_data(
+pub async fn fetch_rpmuh_data(
     mongo_db: &MongoDB,
     pagination_params: QueryParser,
     interval_str: &str,
     sort_by: String,
     order: i32,
-) -> Result<(MembersAndUnitsMeta, Vec<MembersAndUnitsInterval>), String> {
+) -> Result<(RpmuHistoryMeta, Vec<RpmuHistoryInterval>), String> {
     let skip = pagination_params.skip();
     let filter = pagination_params.date_filter();
 
@@ -46,7 +46,7 @@ pub async fn fetch_member_data(
     // Fetch the data from MongoDB
     match mongo_db.members_history.aggregate(pipeline).await {
         Ok(cursor) => {
-            let results: Vec<MembersAndUnitsInterval> = cursor
+            let results: Vec<RpmuHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
                 .await
                 .unwrap_or_else(|_| Vec::new())
@@ -81,7 +81,7 @@ pub async fn fetch_member_data(
 
             let has_next_page = results.len() as i64 == pagination_params.count;
 
-            let meta = MembersAndUnitsMeta {
+            let meta = RpmuHistoryMeta {
                 end_count,
                 end_time,
                 end_units,
@@ -99,7 +99,7 @@ pub async fn fetch_member_data(
     }
 }
 
-pub async fn update_runepool_data(
+pub async fn update_rpmuh_data(
     mongo_db: MongoDB,
     from: f64,
     to: f64,
@@ -116,9 +116,9 @@ pub async fn update_runepool_data(
     println!("Fetching URL: {}", &url);
 
     match reqwest::get(&url).await {
-        Ok(response) => match response.json::<MembersAndUnitsResponse>().await {
+        Ok(response) => match response.json::<RpmuHistoryResponse>().await {
             Ok(resp) => {
-                let intervals: Vec<MembersAndUnitsInterval> = resp.intervals;
+                let intervals: Vec<RpmuHistoryInterval> = resp.intervals;
                 let result = mongo_db
                     .members_history
                     .insert_many(intervals)

@@ -1,10 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::routes::types::CommonQueryParams;
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EarningsHistoryInterval {
+pub struct EarningHistoryInterval {
     pub start_time: f64,
     pub end_time: f64,
     pub liquidity_fees: f64,
@@ -15,9 +13,9 @@ pub struct EarningsHistoryInterval {
     pub avg_node_count: f64,
     #[serde(rename = "runePriceUSD")]
     pub rune_price_usd: f64,
-    pub pools: Vec<EarningsHistoryPool>,
+    pub pools: Vec<EarningHistoryPool>,
 }
-impl EarningsHistoryInterval {
+impl EarningHistoryInterval {
     pub fn field_names() -> Vec<&'static str> {
         vec![
             "startTime",
@@ -38,17 +36,9 @@ impl EarningsHistoryInterval {
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct EarningsHistoryParams {
-    #[serde(flatten)]
-    pub common: CommonQueryParams,
-    pub interval: Option<String>,
-    pub sort_by: Option<String>,
-    pub order: Option<String>,
-}
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EarningsHistoryPool {
+pub struct EarningHistoryPool {
     pub pool: String,
     pub asset_liquidity_fees: f64,
     pub rune_liquidity_fees: f64,
@@ -60,7 +50,7 @@ pub struct EarningsHistoryPool {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EarningsHistoryMeta {
+pub struct EarningHistoryMeta {
     pub start_time: f64,
     pub end_time: f64,
     pub liquidity_fees: f64,
@@ -71,11 +61,11 @@ pub struct EarningsHistoryMeta {
     pub avg_node_count: f64,
     #[serde(rename = "runePriceUSD")]
     pub rune_price_usd: f64,
-    pub pools: Vec<EarningsHistoryPool>,
+    pub pools: Vec<EarningHistoryPool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct EarningsHistoryResponse {
-    pub meta: EarningsHistoryMeta,
-    pub intervals: Vec<EarningsHistoryInterval>,
+pub struct EarningHistoryResponse {
+    pub meta: EarningHistoryMeta,
+    pub intervals: Vec<EarningHistoryInterval>,
 }

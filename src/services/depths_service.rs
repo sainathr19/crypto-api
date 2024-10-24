@@ -1,15 +1,15 @@
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::helpers::time_intervals::interval_to_seconds;
-use crate::models::depths_history::{
-    DepthsHistoryInterval, DepthsHistoryMeta, DepthsHistoryResponse,
+use crate::models::depth_history_model::{
+    DepthHistoryInterval, DepthHistoryMeta, DepthHistoryResponse,
 };
-use crate::routes::types::Meta;
+use crate::routes::types::DepthsHistoryMeta;
 use actix_web::web;
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};
 
-pub async fn get_depths_history_data(
+pub async fn fetch_depths_history(
     mongo_db: &web::Data<MongoDB>,
     pagination_params: QueryParser,
     interval_str: &str,
@@ -18,7 +18,7 @@ pub async fn get_depths_history_data(
     max_depth: Option<f64>,
     min_depth: Option<f64>,
     liquidity_gt: Option<f64>,
-) -> Result<(Meta, Vec<DepthsHistoryInterval>), String> {
+) -> Result<(DepthsHistoryMeta, Vec<DepthHistoryInterval>), String> {
     let interval_seconds = interval_to_seconds(interval_str);
     let skip = pagination_params.skip();
     let mut filter = pagination_params.date_filter();
@@ -78,7 +78,7 @@ pub async fn get_depths_history_data(
     ];
     match mongo_db.depths_history.aggregate(pipeline).await {
         Ok(cursor) => {
-            let results: Vec<DepthsHistoryInterval> = cursor
+            let results: Vec<DepthHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
                 .await
                 .unwrap_or_else(|_| Vec::new())
@@ -92,7 +92,7 @@ pub async fn get_depths_history_data(
 
             let start = &results.first().unwrap();
             let end = &results.last().unwrap();
-            let depths_meta = DepthsHistoryMeta {
+            let depths_meta = DepthHistoryMeta {
                 end_asset_depth: end.asset_depth,
                 end_lp_units: end.liquidity_units,
                 end_member_count: end.members_count,
@@ -108,7 +108,7 @@ pub async fn get_depths_history_data(
                 start_synth_units: start.synth_units,
                 start_time: start.start_time,
             };
-            let meta = Meta {
+            let meta = DepthsHistoryMeta {
                 meta: depths_meta,
                 current_page: pagination_params.page,
                 count: results.len() as i64,
@@ -139,9 +139,9 @@ pub async fn update_depths_data(
     );
     println!("Fetching URL: {}", &url);
     match reqwest::get(&url).await {
-        Ok(response) => match response.json::<DepthsHistoryResponse>().await {
+        Ok(response) => match response.json::<DepthHistoryResponse>().await {
             Ok(resp) => {
-                let intervals: Vec<DepthsHistoryInterval> = resp.intervals;
+                let intervals: Vec<DepthHistoryInterval> = resp.intervals;
                 let result = mongo_db
                     .depths_history
                     .insert_many(intervals)
