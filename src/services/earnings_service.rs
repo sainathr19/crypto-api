@@ -6,7 +6,7 @@ use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::helpers::time_intervals::interval_to_seconds;
 use crate::models::earnings_history::{EarningsHistoryInterval, EarningsHistoryResponse};
-use crate::routes::earnings_history::EarningsHistoryMeta;
+use crate::routes::types::EarningsHistoryMeta;
 
 pub async fn get_earnings_history_data(
     mongo_db: &web::Data<MongoDB>,

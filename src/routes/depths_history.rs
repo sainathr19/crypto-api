@@ -1,30 +1,15 @@
 use crate::helpers::query_parser::QueryParser;
-use crate::models::depths_history::DepthsHistoryMeta;
-use crate::routes::members_history::CommonQueryParams;
+use crate::routes::types::{DepthsHistoryParams, Response};
 use crate::services::depths_service::get_depths_history_data;
 use crate::{db::connection::MongoDB, models::depths_history::DepthsHistoryInterval};
 use actix_web::{get, web, HttpResponse, Responder};
-use mongodb::bson::doc;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Deserialize)]
-struct DepthsHistoryParams {
-    #[serde(flatten)]
-    common: CommonQueryParams,
-    interval: Option<String>,
-    sort_by: Option<String>,
-    order: Option<String>,
-    min_depth: Option<f64>,
-    max_depth: Option<f64>,
-    liquidity_gt: Option<f64>,
-}
 
 #[get("/depths")]
 pub async fn fetch_depths_history(
     mongo_db: web::Data<MongoDB>,
     query: web::Query<DepthsHistoryParams>,
 ) -> impl Responder {
-    let pagination_params = match QueryParser::new(&query.common) {
+    let query_params = match QueryParser::new(&query.common) {
         Ok(params) => params,
         Err(response) => return response,
     };
@@ -50,7 +35,7 @@ pub async fn fetch_depths_history(
 
     match get_depths_history_data(
         &mongo_db,
-        pagination_params,
+        query_params,
         interval_str,
         sort_by,
         order,
@@ -67,19 +52,4 @@ pub async fn fetch_depths_history(
 
 pub fn init(config: &mut web::ServiceConfig) {
     config.service(fetch_depths_history);
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Meta {
-    #[serde(flatten)]
-    pub meta: DepthsHistoryMeta,
-    pub current_page: i64,
-    pub count: i64,
-    pub has_next_page: bool,
-}
-#[derive(Serialize)]
-struct Response {
-    meta: Meta,
-    intervals: Vec<DepthsHistoryInterval>,
 }

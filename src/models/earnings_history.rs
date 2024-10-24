@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::routes::types::CommonQueryParams;
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EarningsHistoryInterval {
@@ -36,6 +38,14 @@ impl EarningsHistoryInterval {
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct EarningsHistoryParams {
+    #[serde(flatten)]
+    pub common: CommonQueryParams,
+    pub interval: Option<String>,
+    pub sort_by: Option<String>,
+    pub order: Option<String>,
+}
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EarningsHistoryPool {

@@ -4,7 +4,7 @@ use crate::helpers::time_intervals::interval_to_seconds;
 use crate::models::depths_history::{
     DepthsHistoryInterval, DepthsHistoryMeta, DepthsHistoryResponse,
 };
-use crate::routes::depths_history::Meta;
+use crate::routes::types::Meta;
 use actix_web::web;
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};

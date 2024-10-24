@@ -1,5 +1,4 @@
-use crate::helpers::time_formatter::parse_date;
-use crate::routes::members_history::CommonQueryParams;
+use crate::{helpers::time_formatter::parse_date, routes::types::CommonQueryParams};
 use actix_web::HttpResponse;
 use chrono::Utc;
 use mongodb::bson::doc;

@@ -1,34 +1,8 @@
 use crate::helpers::query_parser::QueryParser;
+use crate::routes::types::{SwapsHistoryParams, SwapsHistoryResponse};
 use crate::services::swaps_service::fetch_swaps_data;
 use crate::{db::connection::MongoDB, models::swaps_history::SwapsHistoryInterval};
 use actix_web::{get, web, HttpResponse, Responder};
-use mongodb::bson::doc;
-use serde::{Deserialize, Serialize};
-
-use super::members_history::CommonQueryParams;
-
-#[derive(Debug, Deserialize)]
-struct SwapsHistoryParams {
-    #[serde(flatten)]
-    common: CommonQueryParams,
-    // interval: Option<String>,
-    sort_by: Option<String>,
-    order: Option<String>,
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SwapsHistoryMeta {
-    pub current_page: i64,
-    pub count: i64,
-    pub has_next_page: bool,
-}
-
-#[derive(Serialize)]
-struct SwapsHistoryResponse {
-    meta: SwapsHistoryMeta,
-    intervals: Vec<SwapsHistoryInterval>,
-}
 
 #[get("/swaps")]
 pub async fn get_swaps_data(

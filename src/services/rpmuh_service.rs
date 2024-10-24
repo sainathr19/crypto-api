@@ -4,7 +4,8 @@ use mongodb::bson::{doc, Document};
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::models::rptmuh_model::{MembersAndUnitsInterval, MembersAndUnitsResponse};
-use crate::routes::members_history::MembersAndUnitsMeta;
+use crate::routes::types::MembersAndUnitsMeta;
+
 pub async fn fetch_member_data(
     mongo_db: &MongoDB,
     pagination_params: QueryParser,

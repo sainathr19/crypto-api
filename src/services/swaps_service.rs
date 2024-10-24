@@ -1,7 +1,8 @@
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::models::swaps_history::{SwapsHistoryInterval, SwapsHistoryResponse};
-use crate::routes::swaps_history::SwapsHistoryMeta;
+use crate::routes::types::SwapsHistoryMeta;
+
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest;
