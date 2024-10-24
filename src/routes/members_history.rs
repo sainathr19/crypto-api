@@ -13,7 +13,6 @@ pub async fn get_member_data(
         Ok(params) => params,
         Err(response) => return response,
     };
-
     let sort_by = query
         .sort_by
         .clone()
@@ -26,7 +25,9 @@ pub async fn get_member_data(
         Some("asc") => 1,
         _ => -1,
     };
-    match fetch_member_data(&mongo_db, pagination_params, sort_by, order).await {
+
+    let interval_str = query.interval.as_ref().unwrap().as_str();
+    match fetch_member_data(&mongo_db, pagination_params, &interval_str, sort_by, order).await {
         Ok((meta, intervals)) => HttpResponse::Ok().json(MembersResponse { meta, intervals }),
         Err(error_message) => HttpResponse::InternalServerError().body(error_message),
     }

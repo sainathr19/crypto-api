@@ -3,12 +3,14 @@ use mongodb::bson::{doc, Document};
 
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
+use crate::helpers::time_intervals::interval_to_seconds;
 use crate::models::rptmuh_model::{MembersAndUnitsInterval, MembersAndUnitsResponse};
 use crate::routes::types::MembersAndUnitsMeta;
 
 pub async fn fetch_member_data(
     mongo_db: &MongoDB,
     pagination_params: QueryParser,
+    interval_str: &str,
     sort_by: String,
     order: i32,
 ) -> Result<(MembersAndUnitsMeta, Vec<MembersAndUnitsInterval>), String> {
@@ -17,10 +19,26 @@ pub async fn fetch_member_data(
 
     let mut sort_doc = doc! {};
     sort_doc.insert(sort_by.clone(), order);
-
+    let interval_seconds = interval_to_seconds(interval_str);
     let pipeline = vec![
         doc! { "$match": filter },
         doc! { "$sort": sort_doc },
+        doc! {
+            "$group": {
+                "_id": {
+                    "$toDate": {
+                        "$subtract": [
+                            "$startTime",
+                            { "$mod": ["$startTime", interval_seconds] }
+                        ]
+                    }
+                },
+                "count": { "$last": "$count" },
+                "units": { "$last": "$units" },
+                "startTime": { "$first": "$startTime" },
+                "endTime": { "$last": "$endTime" }
+            }
+        },
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];

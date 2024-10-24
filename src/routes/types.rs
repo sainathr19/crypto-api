@@ -42,7 +42,7 @@ pub struct CommonQueryParams {
 pub struct MembersHistoryQuery {
     #[serde(flatten)]
     pub common: CommonQueryParams,
-    //pub interval: Option<String>,
+    pub interval: Option<String>,
     pub sort_by: Option<String>,
     pub order: Option<String>,
 }
