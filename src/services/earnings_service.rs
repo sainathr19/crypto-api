@@ -24,6 +24,33 @@ pub async fn get_earnings_history_data(
     let pipeline = vec![
         doc! { "$match": filter },
         doc! { "$sort": sort_doc },
+        doc! {
+            "$group": {
+                "_id": {
+                    "$toDate": {
+                        "$subtract": [
+                            "$startTime",
+                            { "$mod": ["$startTime", interval_seconds] }
+                        ]
+                    }
+                },
+                "startTime": { "$first": "$startTime" },
+                "endTime": { "$last": "$endTime" },
+                "pool" : {"$last" : "$pool"},
+                "assetLiquidityFees": { "$last": "$assetLiquidityFees" },
+                "runeLiquidityFees": { "$last": "$runeLiquidityFees" },
+                "totalLiquidityFeesRune": { "$last": "$totalLiquidityFeesRune" },
+                "saverEarning": { "$last": "$saverEarning" },
+                "earnings": { "$last": "$earnings" },
+                "rewards": { "$last": "$rewards" },
+                "liquidityFees" : {"$last" : "$earningsHistorySummaryData.liquidityFees"},
+                "blockRewards" : {"$last" : "$earningsHistorySummaryData.blockRewards"},
+                "bondingEarnings": { "$last": "$earningsHistorySummaryData.bondingEarnings" },
+                "liquidityEarnings": { "$last": "$earningsHistorySummaryData.liquidityEarnings" },
+                "avgNodeCount": { "$last": "$earningsHistorySummaryData.avgNodeCount" },
+                "runePriceUSD": { "$last": "$earningsHistorySummaryData.runePriceUSD" }
+            }
+        },
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];
