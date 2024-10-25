@@ -1,5 +1,6 @@
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
+use crate::helpers::time_intervals::interval_to_seconds;
 use crate::models::swap_history_model::{SwapHistoryInterval, SwapHistoryResponse};
 use crate::routes::types::SwapHistoryMeta;
 
@@ -12,17 +13,68 @@ use tokio::time::sleep;
 pub async fn fetch_swaps_history(
     mongo_db: &MongoDB,
     pagination_params: QueryParser,
+    interval_str: &str,
     sort_by: String,
     order: i32,
 ) -> Result<(SwapHistoryMeta, Vec<SwapHistoryInterval>), String> {
     let skip = pagination_params.skip();
     let filter = pagination_params.date_filter();
-
+    let interval_seconds = interval_to_seconds(interval_str);
     let mut sort_doc = doc! {};
     sort_doc.insert(sort_by, order);
     let pipeline = vec![
         doc! { "$match": filter },
         doc! { "$sort": sort_doc },
+        doc! {
+            "$group": {
+                "_id": {
+                    "$toDate": {
+                        "$subtract": [
+                            "$startTime",
+                            { "$mod": ["$startTime", interval_seconds] }
+                        ]
+                    }
+                },
+                "toAssetCount": { "$last": "$toAssetCount" },
+                "toRuneCount": { "$last": "$toRuneCount" },
+                "toTradeCount": { "$last": "$toTradeCount" },
+                "fromTradeCount": { "$last": "$fromTradeCount" },
+                "synthMintCount": { "$last": "$synthMintCount" },
+                "synthRedeemCount": { "$last": "$synthRedeemCount" },
+                "totalCount": { "$last": "$totalCount" },
+                "toAssetVolume": { "$last": "$toAssetVolume" },
+                "toRuneVolume": { "$last": "$toRuneVolume" },
+                "toTradeVolume": { "$last": "$toTradeVolume" },
+                "fromTradeVolume": { "$last": "$fromTradeVolume" },
+                "synthMintVolume": { "$last": "$synthMintVolume" },
+                "synthRedeemVolume": { "$last": "$synthRedeemVolume" },
+                "totalVolume": { "$last": "$totalVolume" },
+                "toAssetVolumeUSD": { "$last": "$toAssetVolumeUSD" },
+                "toRuneVolumeUSD": { "$last": "$toRuneVolumeUSD" },
+                "toTradeVolumeUSD": { "$last": "$toTradeVolumeUSD" },
+                "fromTradeVolumeUSD": { "$last": "$fromTradeVolumeUSD" },
+                "synthMintVolumeUSD": { "$last": "$synthMintVolumeUSD" },
+                "synthRedeemVolumeUSD": { "$last": "$synthRedeemVolumeUSD" },
+                "totalVolumeUSD": { "$last": "$totalVolumeUSD" },
+                "toAssetFees": { "$last": "$toAssetFees" },
+                "toRuneFees": { "$last": "$toRuneFees" },
+                "toTradeFees": { "$last": "$toTradeFees" },
+                "fromTradeFees": { "$last": "$fromTradeFees" },
+                "synthMintFees": { "$last": "$synthMintFees" },
+                "synthRedeemFees": { "$last": "$synthRedeemFees" },
+                "totalFees": { "$last": "$totalFees" },
+                "toAssetAverageSlip": { "$last": "$toAssetAverageSlip" },
+                "toRuneAverageSlip": { "$last": "$toRuneAverageSlip" },
+                "toTradeAverageSlip": { "$last": "$toTradeAverageSlip" },
+                "fromTradeAverageSlip": { "$last": "$fromTradeAverageSlip" },
+                "synthMintAverageSlip": { "$last": "$synthMintAverageSlip" },
+                "synthRedeemAverageSlip": { "$last": "$synthRedeemAverageSlip" },
+                "averageSlip": { "$last": "$averageSlip" },
+                "runePriceUSD": { "$last": "$runePriceUSD" },
+                "startTime": { "$first": "$startTime" },
+                "endTime": { "$last": "$endTime" }
+            }
+        },
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];

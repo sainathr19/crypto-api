@@ -9,7 +9,7 @@ pub async fn handle_swaps_history(
     mongo_db: web::Data<MongoDB>,
     query: web::Query<SwapHistoryParams>,
 ) -> impl Responder {
-    let pagination_params = match QueryParser::new(&query.common) {
+    let pagination_params = match QueryParser::new(&query.common, 400) {
         Ok(params) => params,
         Err(response) => return response,
     };
@@ -27,7 +27,8 @@ pub async fn handle_swaps_history(
         Some("asc") => 1,
         _ => -1,
     };
-    match fetch_swaps_history(&mongo_db, pagination_params, sort_by, order).await {
+    let interval_str = query.interval.as_deref().unwrap_or("hour");
+    match fetch_swaps_history(&mongo_db, pagination_params, interval_str, sort_by, order).await {
         Ok((meta, intervals)) => HttpResponse::Ok().json(SwapHistoryResponse { meta, intervals }),
         Err(error_message) => HttpResponse::InternalServerError().body(error_message),
     }
