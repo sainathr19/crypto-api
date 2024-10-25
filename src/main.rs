@@ -1,3 +1,4 @@
+#![recursion_limit = "256"]
 mod db;
 mod helpers;
 mod models;
@@ -6,7 +7,6 @@ mod services;
 use crate::helpers::cron::start_scheduler;
 use actix_web::{get, web::Data, App, HttpResponse, HttpServer, Responder};
 use db::connection::MongoDB;
-
 #[get("/")]
 async fn home() -> impl Responder {
     HttpResponse::Ok().body("Rust Backend Server")
