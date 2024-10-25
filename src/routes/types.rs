@@ -7,7 +7,7 @@ use crate::models::{
     swap_history_model::SwapHistoryInterval,
 };
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct SwapHistoryParams {
     #[serde(flatten)]
     pub common: CommonQueryParams,
@@ -29,7 +29,7 @@ pub struct SwapHistoryResponse {
     pub intervals: Vec<SwapHistoryInterval>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct CommonQueryParams {
     pub page: Option<String>,
     pub count: Option<String>,
@@ -37,7 +37,7 @@ pub struct CommonQueryParams {
     pub to: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct RpmuHistoryQuery {
     #[serde(flatten)]
     pub common: CommonQueryParams,
@@ -65,7 +65,7 @@ pub struct RpmuHistoryResponse {
     pub meta: RpmuHistoryMeta,
     pub intervals: Vec<RpmuHistoryInterval>,
 }
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct EarningHistoryParams {
     #[serde(flatten)]
     pub common: CommonQueryParams,
@@ -74,7 +74,7 @@ pub struct EarningHistoryParams {
     pub order: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 
 pub struct EarningHistoryFlattenMeta {
@@ -82,13 +82,13 @@ pub struct EarningHistoryFlattenMeta {
     pub page: i64,
     pub has_next_page: bool,
 }
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct EarningHistoryResponse {
     pub meta: EarningHistoryFlattenMeta,
     pub intervals: Vec<EarningHistoryInterval>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct DepthHistoryParams {
     #[serde(flatten)]
     pub common: CommonQueryParams,

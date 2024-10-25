@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DepthHistoryInterval {
     pub asset_depth: f64,
@@ -39,7 +39,7 @@ impl DepthHistoryInterval {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DepthHistoryMeta {
     pub end_asset_depth: f64,
@@ -58,7 +58,7 @@ pub struct DepthHistoryMeta {
     pub start_time: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DepthHistoryResponse {
     pub intervals: Vec<DepthHistoryInterval>,

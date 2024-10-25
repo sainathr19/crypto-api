@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SwapHistoryInterval {
     pub average_slip: f64,
@@ -100,7 +100,7 @@ impl SwapHistoryInterval {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SwapHistoryMeta {
     pub average_slip: f64,
@@ -150,7 +150,7 @@ pub struct SwapHistoryMeta {
     #[serde(rename = "totalVolumeUSD")]
     pub total_volume_usd: f64,
 }
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct SwapHistoryResponse {
     pub intervals: Vec<SwapHistoryInterval>,
     pub meta: SwapHistoryMeta,

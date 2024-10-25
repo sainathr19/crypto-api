@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpmuHistoryInterval {
     pub count: f64,
@@ -18,7 +18,7 @@ impl RpmuHistoryInterval {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RpmuHistoryMeta {
     pub end_count: f64,
@@ -29,7 +29,7 @@ pub struct RpmuHistoryMeta {
     pub start_units: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct RpmuHistoryResponse {
     pub intervals: Vec<RpmuHistoryInterval>,
     pub meta: RpmuHistoryMeta,

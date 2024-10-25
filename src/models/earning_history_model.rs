@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct EarningHistoryInterval {
     pub start_time: f64,
@@ -36,7 +36,7 @@ impl EarningHistoryInterval {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct EarningHistoryPool {
     pub pool: String,
@@ -48,7 +48,7 @@ pub struct EarningHistoryPool {
     pub earnings: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EarningHistoryMeta {
     pub start_time: f64,
@@ -64,7 +64,7 @@ pub struct EarningHistoryMeta {
     pub pools: Vec<EarningHistoryPool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct EarningHistoryResponse {
     pub meta: EarningHistoryMeta,
     pub intervals: Vec<EarningHistoryInterval>,
