@@ -10,19 +10,25 @@ pub struct QueryParser {
     pub from: i64,
     pub to: i64,
 }
-
 impl QueryParser {
-    pub fn new(query: &CommonQueryParams) -> Result<Self, HttpResponse> {
+    pub fn new(query: &CommonQueryParams, max_count: i64) -> Result<Self, HttpResponse> {
         let count = query
             .count
             .as_ref()
             .map(|c| c.parse::<i64>())
             .transpose()
             .map_err(|_| HttpResponse::BadRequest().body("Count must be a valid number."))?
-            .unwrap_or(400);
+            .unwrap_or(max_count);
 
-        if count < 1 || count > 400 {
-            return Err(HttpResponse::BadRequest().body("Count must be between 1 and 400."));
+        if count < 1 {
+            return Err(
+                HttpResponse::BadRequest().body("Count must be greater than or equal to 1.")
+            );
+        }
+        if count > max_count {
+            return Err(
+                HttpResponse::BadRequest().body(format!("Count must not exceed {}.", max_count))
+            );
         }
 
         let page = query
