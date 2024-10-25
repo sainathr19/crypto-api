@@ -9,7 +9,7 @@ pub async fn handle_depths_history(
     mongo_db: web::Data<MongoDB>,
     query: web::Query<DepthHistoryParams>,
 ) -> impl Responder {
-    let query_params = match QueryParser::new(&query.common) {
+    let query_params = match QueryParser::new(&query.common, 400) {
         Ok(params) => params,
         Err(response) => return response,
     };

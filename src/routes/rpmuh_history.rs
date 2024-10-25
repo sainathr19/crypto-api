@@ -9,7 +9,7 @@ pub async fn get_member_data(
     mongo_db: web::Data<MongoDB>,
     query: web::Query<RpmuHistoryQuery>,
 ) -> impl Responder {
-    let pagination_params = match QueryParser::new(&query.common) {
+    let pagination_params = match QueryParser::new(&query.common, 400) {
         Ok(params) => params,
         Err(response) => return response,
     };

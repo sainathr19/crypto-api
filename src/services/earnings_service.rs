@@ -1,12 +1,11 @@
-use actix_web::web;
-use futures_util::TryStreamExt;
-use mongodb::bson::{doc, Document};
-
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
 use crate::helpers::time_intervals::interval_to_seconds;
 use crate::models::earning_history_model::{EarningHistoryInterval, EarningHistoryResponse};
 use crate::routes::types::EarningHistoryFlattenMeta;
+use actix_web::web;
+use futures_util::TryStreamExt;
+use mongodb::bson::{doc, Document};
 
 pub async fn fetch_earnings_history(
     mongo_db: &web::Data<MongoDB>,
@@ -36,25 +35,19 @@ pub async fn fetch_earnings_history(
                 },
                 "startTime": { "$first": "$startTime" },
                 "endTime": { "$last": "$endTime" },
-                "pool" : {"$last" : "$pool"},
-                "assetLiquidityFees": { "$last": "$assetLiquidityFees" },
-                "runeLiquidityFees": { "$last": "$runeLiquidityFees" },
-                "totalLiquidityFeesRune": { "$last": "$totalLiquidityFeesRune" },
-                "saverEarning": { "$last": "$saverEarning" },
+                "liquidityFees": { "$last": "$liquidityFees" },
+                "blockRewards": { "$last": "$blockRewards" },
                 "earnings": { "$last": "$earnings" },
-                "rewards": { "$last": "$rewards" },
-                "liquidityFees" : {"$last" : "$earningsHistorySummaryData.liquidityFees"},
-                "blockRewards" : {"$last" : "$earningsHistorySummaryData.blockRewards"},
-                "bondingEarnings": { "$last": "$earningsHistorySummaryData.bondingEarnings" },
-                "liquidityEarnings": { "$last": "$earningsHistorySummaryData.liquidityEarnings" },
-                "avgNodeCount": { "$last": "$earningsHistorySummaryData.avgNodeCount" },
-                "runePriceUSD": { "$last": "$earningsHistorySummaryData.runePriceUSD" }
+                "bondingEarnings": { "$last": "$bondingEarnings" },
+                "liquidityEarnings": { "$last": "$liquidityEarnings" },
+                "avgNodeCount": { "$last": "$avgNodeCount" },
+                "runePriceUSD": { "$last": "$runePriceUSD" },
+                "pools": { "$last": "$pools" }
             }
         },
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];
-
     match mongo_db.earnings_history.aggregate(pipeline).await {
         Ok(cursor) => {
             let results: Vec<EarningHistoryInterval> = cursor

@@ -4,14 +4,12 @@ use crate::routes::types::{EarningHistoryParams, EarningHistoryResponse};
 use crate::{db::connection::MongoDB, services::earnings_service::fetch_earnings_history};
 use actix_web::{get, web, HttpResponse, Responder};
 
-use super::depths_history::handle_depths_history;
-
 #[get("/earnings")]
 pub async fn handle_earnings_history(
     mongo_db: web::Data<MongoDB>,
     query: web::Query<EarningHistoryParams>,
 ) -> impl Responder {
-    let pagination_params = match QueryParser::new(&query.common) {
+    let query_params = match QueryParser::new(&query.common, 100) {
         Ok(params) => params,
         Err(response) => return response,
     };
@@ -28,8 +26,7 @@ pub async fn handle_earnings_history(
         _ => -1,
     };
     let interval_str = query.interval.as_deref().unwrap_or("hour");
-    match fetch_earnings_history(&mongo_db, pagination_params, &interval_str, sort_by, order).await
-    {
+    match fetch_earnings_history(&mongo_db, query_params, &interval_str, sort_by, order).await {
         Ok((meta, intervals)) => {
             HttpResponse::Ok().json(EarningHistoryResponse { meta, intervals })
         }
@@ -38,5 +35,5 @@ pub async fn handle_earnings_history(
 }
 
 pub fn init(config: &mut web::ServiceConfig) {
-    config.service(handle_depths_history);
+    config.service(handle_earnings_history);
 }
