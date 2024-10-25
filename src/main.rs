@@ -4,6 +4,7 @@ mod helpers;
 mod models;
 mod routes;
 mod services;
+mod tests;
 use crate::helpers::cron::start_scheduler;
 use actix_web::{get, web::Data, App, HttpResponse, HttpServer, Responder};
 use db::connection::MongoDB;
@@ -17,7 +18,7 @@ async fn main() -> std::io::Result<()> {
     let mongo_db: MongoDB = MongoDB::init().await.expect("Error connecting to Database");
     println!("Connected to Database");
 
-    // Start the scheduler in a separate task
+    // Start the scheduler for updating data
     let mongo_db_clone = mongo_db.clone();
     tokio::spawn(async move {
         if let Err(e) = start_scheduler(mongo_db_clone).await {
