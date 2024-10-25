@@ -21,12 +21,14 @@ pub async fn get_member_data(
     if !RpmuHistoryInterval::has_field(sort_by.clone()) {
         return HttpResponse::BadRequest().body("Invalid sort_by parameter.");
     }
+
     let order = match query.order.as_deref() {
         Some("asc") => 1,
         _ => -1,
     };
 
-    let interval_str = query.interval.as_ref().unwrap().as_str();
+    let interval_str = query.interval.clone().unwrap_or_else(|| "hour".to_string());
+
     match fetch_rpmuh_data(&mongo_db, pagination_params, &interval_str, sort_by, order).await {
         Ok((meta, intervals)) => HttpResponse::Ok().json(RpmuHistoryResponse { meta, intervals }),
         Err(error_message) => HttpResponse::InternalServerError().body(error_message),
