@@ -25,8 +25,23 @@ pub async fn handle_earnings_history(
         Some("asc") => 1,
         _ => -1,
     };
+
+    let pool_name = match query.pool.as_deref() {
+        Some(val) => val,
+        _ => "all",
+    };
+
     let interval_str = query.interval.as_deref().unwrap_or("hour");
-    match fetch_earnings_history(&mongo_db, query_params, &interval_str, sort_by, order).await {
+    match fetch_earnings_history(
+        &mongo_db,
+        query_params,
+        &interval_str,
+        sort_by,
+        order,
+        pool_name,
+    )
+    .await
+    {
         Ok((meta, intervals)) => {
             HttpResponse::Ok().json(EarningHistoryResponse { meta, intervals })
         }

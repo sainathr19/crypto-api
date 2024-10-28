@@ -14,6 +14,7 @@ pub async fn fetch_earnings_history(
     interval_str: &str,
     sort_by: String,
     order: i32,
+    pool_name: &str,
 ) -> Result<(EarningHistoryFlattenMeta, Vec<EarningHistoryInterval>), String> {
     let interval_seconds = interval_to_seconds(interval_str);
     let skip = pagination_params.skip();
@@ -23,6 +24,32 @@ pub async fn fetch_earnings_history(
     let pipeline = vec![
         doc! { "$match": filter },
         doc! { "$sort": sort_doc },
+        doc! {
+            "$project": {
+                "startTime": 1,
+                "endTime": 1,
+                "liquidityFees": 1,
+                "blockRewards": 1,
+                "earnings": 1,
+                "bondingEarnings": 1,
+                "liquidityEarnings": 1,
+                "avgNodeCount": 1,
+                "runePriceUSD": 1,
+                "pools": {
+                    "$cond": {
+                        "if": { "$eq": [pool_name, "all"] },
+                        "then": "$pools",
+                        "else": {
+                            "$filter": {
+                                "input": "$pools",
+                                "as": "pool",
+                                "cond": { "$eq": ["$$pool.pool", pool_name] }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         doc! {
             "$group": {
                 "_id": {

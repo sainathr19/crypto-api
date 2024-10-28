@@ -73,6 +73,7 @@ pub struct EarningHistoryParams {
     pub interval: Option<String>,
     pub sort_by: Option<String>,
     pub order: Option<String>,
+    pub pool: Option<String>,
 }
 
 #[derive(Deserialize, Serialize)]
