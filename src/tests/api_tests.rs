@@ -39,7 +39,6 @@ async fn test_get_runepool_history_invalid_sort() {
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
 }
 
-// Tests for /earnings
 #[actix_web::test]
 async fn test_get_earnings_history() {
     let mongo_db = MongoDB::init().await.expect("Failed to initialize MongoDB");

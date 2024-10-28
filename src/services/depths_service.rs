@@ -7,7 +7,10 @@ use crate::models::depth_history_model::{
 use crate::routes::types::DepthsHistoryMeta;
 use actix_web::web;
 use futures_util::TryStreamExt;
-use mongodb::bson::{doc, Document};
+use mongodb::{
+    bson::{doc, Document},
+    options::AggregateOptions,
+};
 
 pub async fn fetch_depths_history(
     mongo_db: &web::Data<MongoDB>,
@@ -76,7 +79,12 @@ pub async fn fetch_depths_history(
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];
-    match mongo_db.depths_history.aggregate(pipeline).await {
+    let aggregate_options = AggregateOptions::builder().allow_disk_use(true).build();
+    match mongo_db
+        .depths_history
+        .aggregate(pipeline, aggregate_options)
+        .await
+    {
         Ok(cursor) => {
             let results: Vec<DepthHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
@@ -144,7 +152,7 @@ pub async fn update_depths_data(
                 let intervals: Vec<DepthHistoryInterval> = resp.intervals;
                 let result = mongo_db
                     .depths_history
-                    .insert_many(intervals)
+                    .insert_many(intervals, None)
                     .await
                     .map_err(|e| format!("Error Inserting Data into DB: {:?}", e))?;
 

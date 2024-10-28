@@ -6,6 +6,7 @@ use crate::routes::types::EarningHistoryFlattenMeta;
 use actix_web::web;
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};
+use mongodb::options::AggregateOptions;
 
 pub async fn fetch_earnings_history(
     mongo_db: &web::Data<MongoDB>,
@@ -19,7 +20,6 @@ pub async fn fetch_earnings_history(
     let filter = pagination_params.date_filter();
     let mut sort_doc = doc! {};
     sort_doc.insert(sort_by.clone(), order);
-
     let pipeline = vec![
         doc! { "$match": filter },
         doc! { "$sort": sort_doc },
@@ -48,7 +48,12 @@ pub async fn fetch_earnings_history(
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];
-    match mongo_db.earnings_history.aggregate(pipeline).await {
+    let aggregate_options = AggregateOptions::builder().allow_disk_use(true).build();
+    match mongo_db
+        .earnings_history
+        .aggregate(pipeline, aggregate_options)
+        .await
+    {
         Ok(cursor) => {
             let results: Vec<EarningHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
@@ -95,7 +100,7 @@ pub async fn update_earnings_history(
                 let intervals: Vec<EarningHistoryInterval> = resp.intervals;
                 let result = mongo_db
                     .earnings_history
-                    .insert_many(intervals)
+                    .insert_many(intervals, None)
                     .await
                     .map_err(|e| format!("Error Inserting Data into DB: {:?}", e))?;
 

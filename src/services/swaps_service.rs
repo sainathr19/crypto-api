@@ -6,6 +6,7 @@ use crate::routes::types::SwapHistoryMeta;
 
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};
+use mongodb::options::AggregateOptions;
 use reqwest;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -78,8 +79,12 @@ pub async fn fetch_swaps_history(
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];
-
-    match mongo_db.swaps_history.aggregate(pipeline).await {
+    let aggregate_options = AggregateOptions::builder().allow_disk_use(true).build();
+    match mongo_db
+        .swaps_history
+        .aggregate(pipeline, aggregate_options)
+        .await
+    {
         Ok(cursor) => {
             let results: Vec<SwapHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
@@ -132,7 +137,7 @@ pub async fn update_swaps_history(
                     let intervals: Vec<SwapHistoryInterval> = resp.intervals;
                     let result = mongo_db
                         .swaps_history
-                        .insert_many(intervals)
+                        .insert_many(intervals, None)
                         .await
                         .map_err(|e| format!("Error Inserting Data into DB: {:?}", e))?;
 

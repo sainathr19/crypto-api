@@ -1,5 +1,6 @@
 use futures_util::TryStreamExt;
 use mongodb::bson::{doc, Document};
+use mongodb::options::AggregateOptions;
 
 use crate::db::connection::MongoDB;
 use crate::helpers::query_parser::QueryParser;
@@ -42,9 +43,14 @@ pub async fn fetch_rpmuh_data(
         doc! { "$skip": skip },
         doc! { "$limit": pagination_params.count },
     ];
+    let aggregate_options = AggregateOptions::builder().allow_disk_use(true).build();
 
     // Fetch the data from MongoDB
-    match mongo_db.members_history.aggregate(pipeline).await {
+    match mongo_db
+        .members_history
+        .aggregate(pipeline, aggregate_options)
+        .await
+    {
         Ok(cursor) => {
             let results: Vec<RpmuHistoryInterval> = cursor
                 .try_collect::<Vec<Document>>()
@@ -121,7 +127,7 @@ pub async fn update_rpmuh_data(
                 let intervals: Vec<RpmuHistoryInterval> = resp.intervals;
                 let result = mongo_db
                     .members_history
-                    .insert_many(intervals)
+                    .insert_many(intervals, None)
                     .await
                     .map_err(|e| format!("Error Inserting Data into DB: {:?}", e))?;
 
