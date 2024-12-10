@@ -14,3 +14,7 @@ mongodb = "2.7.1"
 chrono = "0.4"
 futures-util = "0.3.31"
 tokio-cron-scheduler = "0.13.0"
+
+[[bin]]
+name = "crypto-api"
+path = "src/main.rs"
