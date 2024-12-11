@@ -32,4 +32,6 @@ jobs:
         run: cargo build --release
 
       - name: Run tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: cargo test --verbose
