@@ -27,6 +27,8 @@ jobs:
         run: cargo check
 
       - name: Build project
+        env :
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: cargo build --release
 
       - name: Run tests
